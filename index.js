@@ -12,16 +12,28 @@ const manageFreeTrials = () => {
   )
   const session = driver.session()
 
-  //User-
-  //name= Math.random()
-  //timestamp created
-  //other properties
 
   //Create a new user
-  session.run('MATCH(a:User) RETURN a').then(function(result1) {
-    console.log('Users found: ', result1)
-  })
-  //Discord, "[username id] created."
+  var email = Math.round(Math.random() * 3000000);
+  var password = 'dTf7$(ld)'
+  var d = new Date().toISOString()
+
+  session
+    .run('CREATE(n:User {email: $email, password: $password, timeStamp: $timestamp}) RETURN n',
+      {
+        email: email,
+        password: password,
+        timestamp: d
+      }
+    ).then(function(result1) {
+      //Discord, "[username] created."
+      axios.post(`https://discord.com/api/webhooks/${process.env.DISCORDHANDLE}/${process.env.DISCORDTOKEN}`, {
+        content: `${email} created.`
+      })
+    })
+    .catch(function(error){
+      console.log(error)
+    });
 
   //Check for users created in the past two days
 

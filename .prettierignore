@@ -1,0 +1,16 @@
+# Ignore artifacts:
+/node_modules
+src/App.js
+src/index.js
+src/constants
+src/assets
+src/styles
+/public
+package.json
+package-lock.json
+README.md
+gitlab-ci.yml
+gitirgnore
+prettierignore
+prettierrc
+git
