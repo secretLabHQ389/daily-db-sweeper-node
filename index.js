@@ -30,14 +30,32 @@ const manageFreeTrials = () => {
       axios.post(`https://discord.com/api/webhooks/${process.env.DISCORDHANDLE}/${process.env.DISCORDTOKEN}`, {
         content: `${email} created.`
       })
-    })
+
+      session
+        .run('MATCH(n:User) RETURN n')
+          .then(function(result1) {
+
+            //Check for users created in the past two days
+            let pastTwoDays = []
+
+            result1.records && result1.records.map(record => {
+              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 2 >= parseInt(d.slice(8,10))) {
+                pastTwoDays.push(record._fields[0].properties.email)
+              }
+            })
+
+            //Discord, "Users from past two days: [username], [username], [username]."
+            axios.post(`https://discord.com/api/webhooks/${process.env.DISCORDHANDLE}/${process.env.DISCORDTOKEN}`, {
+              content: `Users from past two days: ${pastTwoDays}.`
+            })
+          })
+        .catch(function(error){
+          console.log(error)
+        })
+      })
     .catch(function(error){
       console.log(error)
     });
-
-  //Check for users created in the past two days
-
-  //Discord, "Users created in the past two days: [username id], [username id], [username id]"
 
   //Check for users with a timestamp from 13 days ago
 
@@ -48,6 +66,8 @@ const manageFreeTrials = () => {
   //Send the deleted users the Signup email
 
   //Discord, "Free trials ended today: [username id], [username id]"
+
+  //close session
 
 }
 
