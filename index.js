@@ -35,18 +35,54 @@ const manageFreeTrials = () => {
         .run('MATCH(n:User) RETURN n')
           .then(function(result1) {
 
-            //Check for users created in the past two days
+            //Check for users with a timestamp from the past two days ago
             let pastTwoDays = []
+            //Check for users with a timestamp from 13 days ago
+            let freeTrialExpiringTomorrow = []
+            //Check for users with a timestamp from 14 days ago
+            let freeTrialExpiring = []
 
             result1.records && result1.records.map(record => {
               if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 2 >= parseInt(d.slice(8,10))) {
                 pastTwoDays.push(record._fields[0].properties.email)
+              }
+              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 13 === parseInt(d.slice(8,10))) {
+                freeTrialExpiringTomorrow.push(record._fields[0].properties.email)
+              }
+              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 14 === parseInt(d.slice(8,10))) {
+                freeTrialExpiring.push(record._fields[0].properties.email)
               }
             })
 
             //Discord, "Users from past two days: [username], [username], [username]."
             axios.post(`https://discord.com/api/webhooks/${process.env.DISCORDHANDLE}/${process.env.DISCORDTOKEN}`, {
               content: `Users from past two days: ${pastTwoDays}.`
+            })
+
+            //Discord, "Free trials expiring tomorrow: [username], [username]."
+            axios.post(`https://discord.com/api/webhooks/${process.env.DISCORDHANDLE}/${process.env.DISCORDTOKEN}`, {
+              content: `Free trials expiring tomorrow: ${freeTrialExpiringTomorrow}.`
+            })
+
+            freeTrialExpiring && freeTrialExpiring.map(expired => {
+              //Send the deleted users the Signup email
+              console.log('expired email sent: ', expired)
+              //Delete all users with a timestamp from 14 days ago
+              session
+                .run('MATCH(n:User {email: $expiredEmail})', {
+                  $expiredEmail: expired
+                })
+                .then(
+                  console.log(expired, ' deleted')
+                )
+                .catch(function(error){
+                  console.log(error)
+                })
+            })
+
+            //Discord, "Free trials ended today: [username id], [username id]"
+            axios.post(`https://discord.com/api/webhooks/${process.env.DISCORDHANDLE}/${process.env.DISCORDTOKEN}`, {
+              content: `Free trials ended today: ${freeTrialExpiring}.`
             })
           })
         .catch(function(error){
@@ -55,20 +91,7 @@ const manageFreeTrials = () => {
       })
     .catch(function(error){
       console.log(error)
-    });
-
-  //Check for users with a timestamp from 13 days ago
-
-  //Discord, "Free trials expiring tomorrow: [username id], [username id]"
-
-  //Delete all users with a timestamp from 14 days ago
-
-  //Send the deleted users the Signup email
-
-  //Discord, "Free trials ended today: [username id], [username id]"
-
-  //close session
-
+    })
 }
 
 manageFreeTrials()
