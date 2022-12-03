@@ -1,5 +1,6 @@
 var neo4j = require('neo4j-driver')
 var axios = require('axios')
+var nodemailer = require('nodemailer')
 require('dotenv').config()
 
 const manageFreeTrials = () => {
@@ -14,9 +15,18 @@ const manageFreeTrials = () => {
 
 
   //Create a new user
-  var email = Math.round(Math.random() * 3000000);
+  var email = 'yourfesource@gmail.com' //Math.round(Math.random() * 3000000);
   var password = 'dTf7$(ld)'
   var d = new Date().toISOString()
+
+  //Send expiration email:
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: `${process.env.EMAIL_ACCOUNT}`,
+      pass: `${process.env.EMAIL_PASSWORD}`
+    }
+  })
 
   session
     .run('CREATE(n:User {email: $email, password: $password, timeStamp: $timestamp}) RETURN n',
@@ -67,6 +77,36 @@ const manageFreeTrials = () => {
             freeTrialExpiring && freeTrialExpiring.map(expired => {
               //Send the deleted users the Signup email
               console.log('expired email sent: ', expired)
+              var mailOptions = {
+                from: `${process.env.EMAIL_ACCOUNT}`,
+                to: `${expired}`,
+                subject: 'Rent Hub- Free Trial Over',
+                text: `
+                Dear ${expired},
+
+                We hope you enjoyed your free trial. Please contact us
+
+                at director_contact@mightyapps.org
+
+                to discuss subscriptions ranging from basic for
+
+                the cost of a gym membership to white labeling just for you.
+
+                Sincerely,
+
+                Mighty Apps
+
+                `
+              }
+
+              transporter.sendMail(mailOptions, function(error, info) {
+                if (error) {
+                  console.log('Error: ', error)
+                } else {
+                  console.log('Email sent: ', info.response)
+                }
+              })
+
               //Delete all users with a timestamp from 14 days ago
               session
                 .run('MATCH(n:User {email: $expiredEmail})', {
@@ -92,6 +132,7 @@ const manageFreeTrials = () => {
     .catch(function(error){
       console.log(error)
     })
+
 }
 
 manageFreeTrials()
