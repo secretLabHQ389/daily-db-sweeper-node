@@ -62,7 +62,7 @@ const manageFreeTrials = () => {
               if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 13 === parseInt(d.slice(8,10))) {
                 freeTrialExpiringTomorrow.push(record._fields[0].properties.email)
               }
-              if ((parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) <= parseInt(d.slice(8,10))) && (emailRGEX.test(record._fields[0].properties.email))) {
+              if ((parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 14 === parseInt(d.slice(8,10))) && (emailRGEX.test(record._fields[0].properties.email))) {
                 freeTrialExpiring.push(record._fields[0].properties.email)
               }
             })
