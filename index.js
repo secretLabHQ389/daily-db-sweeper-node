@@ -51,7 +51,10 @@ const manageFreeTrials = () => {
             let freeTrialExpiringTomorrow = []
             //Check for users with a timestamp from 14 days ago
             let freeTrialExpiring = []
+            //Check for real user and not seed data:
+            var emailRGEX = /^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$/g
 
+            //Add more logic for start and stop of the month:
             result1.records && result1.records.map(record => {
               if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 2 >= parseInt(d.slice(8,10))) {
                 pastTwoDays.push(record._fields[0].properties.email)
@@ -59,7 +62,7 @@ const manageFreeTrials = () => {
               if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 13 === parseInt(d.slice(8,10))) {
                 freeTrialExpiringTomorrow.push(record._fields[0].properties.email)
               }
-              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 14 === parseInt(d.slice(8,10))) {
+              if ((parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) <= parseInt(d.slice(8,10))) && (emailRGEX.test(record._fields[0].properties.email))) {
                 freeTrialExpiring.push(record._fields[0].properties.email)
               }
             })
@@ -76,7 +79,6 @@ const manageFreeTrials = () => {
 
             freeTrialExpiring && freeTrialExpiring.map(expired => {
               //Send the deleted users the Signup email
-              console.log('expired email sent: ', expired)
               var mailOptions = {
                 from: `${process.env.EMAIL_ACCOUNT}`,
                 to: `${expired}`,
@@ -109,7 +111,7 @@ const manageFreeTrials = () => {
 
               //Delete all users with a timestamp from 14 days ago
               session
-                .run('MATCH(n:User {email: $expiredEmail})', {
+                .run('MATCH(n:User {email: $expiredEmail}) RETURN n', {
                   $expiredEmail: expired
                 })
                 .then(
