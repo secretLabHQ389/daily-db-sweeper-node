@@ -57,13 +57,13 @@ const manageFreeTrials = () => {
 
             //Add more logic for start and stop of the month:
             result1.records && result1.records.map(record => {
-              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 2 >= parseInt(d.slice(8,10))) {
+              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 2 >= parseInt( d.slice(8,10))) {
                 pastTwoDays.push(record._fields[0].properties.email)
               }
-              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 13 === parseInt(d.slice(8,10)) {
+              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 13 === parseInt(d.slice(8,10))) {
                 freeTrialExpiringTomorrow.push(record._fields[0].properties.email)
               }
-              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 14 === parseInt(d.slice(8,10)) {
+              if (parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 14 === parseInt(d.slice(8,10))) {
                 freeTrialExpiring.push(record._fields[0].properties.email)
               }
               if ((parseInt(record._fields[0].properties.timeStamp?.slice(8,10)) + 14 === parseInt(d.slice(8,10))) && (emailRGEX.test(record._fields[0].properties.email))) {
