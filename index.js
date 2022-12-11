@@ -31,7 +31,7 @@ const manageFreeTrials = () => {
   session
     .run('CREATE(n:User {email: $email, password: $password, timeStamp: $timestamp}) RETURN n',
       {
-        email: email,
+        email: neo4j.int(email),
         password: password,
         timestamp: d
       }
