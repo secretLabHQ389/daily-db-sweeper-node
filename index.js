@@ -15,7 +15,7 @@ const manageFreeTrials = () => {
 
 
   //Create a new user
-  var email = 'yourfesource@gmail.com' //Math.round(Math.random() * 3000000);
+  var email = Math.round(Math.random() * 3000000);
   var password = 'dTf7$(ld)'
   var d = new Date().toISOString()
 
